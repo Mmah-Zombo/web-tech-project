@@ -30,6 +30,6 @@ football-agent/
 ## Integration with Front-End
 Include models in your HTML/PHP pages for dynamic data (e.g., fetch users in contact.php).
 
-Submitted by: M'mah Zombo
+Submitted by: [M'mah Zombo](https://github.com/Mmah-Zombo)
 
-GitHub: [https://github.com/Mmah-Zombo]
+GitHub: [Project Source Code](https://github.com/Mmah-Zombo/web-tech-project)
