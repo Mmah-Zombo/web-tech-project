@@ -1,7 +1,11 @@
 <?php
-// Include models (but we don't need CRUD here, just direct SQL for setup)
 require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../models/DB.php'; // For connection
+require_once __DIR__ . '/../models/User.php';
+require_once __DIR__ . '/../models/PlayerProfile.php';
+require_once __DIR__ . '/../models/AgentProfile.php';
+require_once __DIR__ . '/../models/Club.php';
+require_once __DIR__ . '/../models/Contract.php';
 
 $conn = new mysqli(DB_SERVER, DB_USERNAME, DB_PASSWORD);
 
@@ -23,8 +27,53 @@ $sqlUsers = "CREATE TABLE IF NOT EXISTS users (
 )";
 $conn->query($sqlUsers);
 
-// ... (Add CREATE TABLE queries for player_profiles, agent_profiles, clubs, contracts as in original code)
+$sqlPlayerProfiles = "CREATE TABLE IF NOT EXISTS player_profiles (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    position VARCHAR(50),
+    age INT,
+    height_cm INT,
+    weight_kg INT,
+    preferred_foot ENUM('Left', 'Right', 'Both'),
+    current_club VARCHAR(255),
+    nationality VARCHAR(100),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+)";
+$conn->query($sqlPlayerProfiles);
 
+$sqlAgentProfiles = "CREATE TABLE IF NOT EXISTS agent_profiles (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    license_number VARCHAR(50),
+    years_experience INT,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+)";
+$conn->query($sqlAgentProfiles);
+
+$sqlClubs = "CREATE TABLE IF NOT EXISTS clubs (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    location VARCHAR(255),
+    league VARCHAR(255),
+    manager_user_id INT,
+    FOREIGN KEY (manager_user_id) REFERENCES users(id) ON DELETE SET NULL
+)";
+$conn->query($sqlClubs);
+
+$sqlContracts = "CREATE TABLE IF NOT EXISTS contracts (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    player_user_id INT NOT NULL,
+    club_id INT NOT NULL,
+    agent_user_id INT NOT NULL,
+    start_date DATE,
+    end_date DATE,
+    salary DECIMAL(10,2),
+    status ENUM('Active', 'Expired', 'Terminated') DEFAULT 'Active',
+    FOREIGN KEY (player_user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (club_id) REFERENCES clubs(id) ON DELETE CASCADE,
+    FOREIGN KEY (agent_user_id) REFERENCES users(id) ON DELETE CASCADE
+)";
+$conn->query($sqlContracts);
 
 // Insert sample data using model methods
 // Admins
