@@ -10,13 +10,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit(0);
 }
 
-require_once __DIR__ . '/../config/config.php';
-require_once __DIR__ . '/../models/DB.php';
-require_once __DIR__ . '/../models/User.php';
-require_once __DIR__ . '/../models/PlayerProfile.php';
-require_once __DIR__ . '/../models/AgentProfile.php';
-require_once __DIR__ . '/../models/Club.php';
-require_once __DIR__ . '/../models/Contract.php';
+require_once __DIR__ . '/config/config.php';
+require_once __DIR__ . '/models/DB.php';
+require_once __DIR__ . '/models/User.php';
+require_once __DIR__ . '/models/PlayerProfile.php';
+require_once __DIR__ . '/models/AgentProfile.php';
+require_once __DIR__ . '/models/Club.php';
+require_once __DIR__ . '/models/Contract.php';
 
 $method = $_SERVER['REQUEST_METHOD'];
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
@@ -148,7 +148,7 @@ function handleAuth($method, $sub) {
             echo json_encode(['error' => 'Password too short']);
             exit;
         }
-        if (!in_array($data['role'], ['Player', 'Agent', 'ClubManager'])) { // Exclude Admin for register
+        if (!in_array(strtolower($data['role']), ['player', 'agent', 'clubmanager'])) { // Exclude Admin for register
             http_response_code(400);
             echo json_encode(['error' => 'Invalid role']);
             exit;
