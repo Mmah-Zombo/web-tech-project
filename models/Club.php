@@ -17,12 +17,12 @@ class Club {
     public static function read($id = null) {
         $conn = DB::getConnection();
         if ($id) {
-            $stmt = $conn->prepare("SELECT * FROM clubs WHERE id = ?");
+            $stmt = $conn->prepare("SELECT c.*, u.name as manager_name FROM clubs c LEFT JOIN users u ON c.manager_user_id = u.id WHERE c.id = ?");
             $stmt->bind_param("i", $id);
             $stmt->execute();
             return $stmt->get_result()->fetch_assoc();
         } else {
-            $result = $conn->query("SELECT * FROM clubs");
+            $result = $conn->query("SELECT c.*, u.name as manager_name FROM clubs c LEFT JOIN users u ON c.manager_user_id = u.id");
             return $result->fetch_all(MYSQLI_ASSOC);
         }
     }

@@ -14,12 +14,12 @@ class Contract {
     public static function read($id = null) {
         $conn = DB::getConnection();
         if ($id) {
-            $stmt = $conn->prepare("SELECT * FROM contracts WHERE id = ?");
+            $stmt = $conn->prepare("SELECT con.*, up.name as player_name, c.name as club_name, ua.name as agent_name FROM contracts con INNER JOIN users up ON con.player_user_id = up.id INNER JOIN clubs c ON con.club_id = c.id INNER JOIN users ua ON con.agent_user_id = ua.id WHERE con.id = ?");
             $stmt->bind_param("i", $id);
             $stmt->execute();
             return $stmt->get_result()->fetch_assoc();
         } else {
-            $result = $conn->query("SELECT * FROM contracts");
+            $result = $conn->query("SELECT con.*, up.name as player_name, c.name as club_name, ua.name as agent_name FROM contracts con INNER JOIN users up ON con.player_user_id = up.id INNER JOIN clubs c ON con.club_id = c.id INNER JOIN users ua ON con.agent_user_id = ua.id");
             return $result->fetch_all(MYSQLI_ASSOC);
         }
     }

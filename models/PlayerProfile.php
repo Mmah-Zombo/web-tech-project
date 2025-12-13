@@ -14,12 +14,12 @@ class PlayerProfile {
     public static function read($id = null) {
         $conn = DB::getConnection();
         if ($id) {
-            $stmt = $conn->prepare("SELECT * FROM player_profiles WHERE id = ?");
+            $stmt = $conn->prepare("SELECT pp.*, u.name, u.email, u.role FROM player_profiles pp INNER JOIN users u ON pp.user_id = u.id WHERE pp.id = ?");
             $stmt->bind_param("i", $id);
             $stmt->execute();
             return $stmt->get_result()->fetch_assoc();
         } else {
-            $result = $conn->query("SELECT * FROM player_profiles");
+            $result = $conn->query("SELECT pp.*, u.name, u.email, u.role FROM player_profiles pp INNER JOIN users u ON pp.user_id = u.id");
             return $result->fetch_all(MYSQLI_ASSOC);
         }
     }

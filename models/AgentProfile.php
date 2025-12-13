@@ -14,12 +14,12 @@ class AgentProfile {
     public static function read($id = null) {
         $conn = DB::getConnection();
         if ($id) {
-            $stmt = $conn->prepare("SELECT * FROM agent_profiles WHERE id = ?");
+            $stmt = $conn->prepare("SELECT ap.*, u.name, u.email, u.role FROM agent_profiles ap INNER JOIN users u ON ap.user_id = u.id WHERE ap.id = ?");
             $stmt->bind_param("i", $id);
             $stmt->execute();
             return $stmt->get_result()->fetch_assoc();
         } else {
-            $result = $conn->query("SELECT * FROM agent_profiles");
+            $result = $conn->query("SELECT ap.*, u.name, u.email, u.role FROM agent_profiles ap INNER JOIN users u ON ap.user_id = u.id");
             return $result->fetch_all(MYSQLI_ASSOC);
         }
     }
