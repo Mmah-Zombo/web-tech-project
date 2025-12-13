@@ -29,8 +29,8 @@ if ($uri[0] !== 'api') {
 }
 
 $resource = $uri[1] ?? null;
-$subresource = isset($uri[2]) ? $uri[2] : null;
-$id = isset($uri[3]) ? (int)$uri[3] : null;
+// $subresource = isset($uri[2]) ? $uri[2] : null;
+$id = isset($uri[2]) ? (int)$uri[2] : null;
 
 if (!$resource) {
     http_response_code(404);
@@ -100,6 +100,7 @@ switch ($resource) {
         break;
     case 'agent_profiles':
         if ($method !== 'GET') checkAuth();
+        $id = isset($uri[2]) ? $uri[2] : null;
         handleAgentProfile($method, $id);
         break;
     case 'clubs':
@@ -111,6 +112,7 @@ switch ($resource) {
         handleContract($method, $id);
         break;
     case 'auth':
+        $subresource = isset($uri[2]) ? $uri[2] : null;
         handleAuth($method, $subresource);
         break;
     default:
@@ -415,8 +417,10 @@ function handlePlayerProfile($method, $id) {
 function handleAgentProfile($method, $id) {
     switch ($method) {
         case 'GET':
-            if ($id) {
-                $result = AgentProfile::read($id);
+            if (is_numeric($id)) {
+                $result = AgentProfile::read(id:$id);
+            } elseif (is_string($id)) {
+                $result = AgentProfile::read(email:$id);
             } else {
                 $result = AgentProfile::read();
             }
