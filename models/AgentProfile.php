@@ -51,7 +51,21 @@ class AgentProfile {
     // Update
     public static function update($id, $license_number, $years_experience) {
         $conn = DB::getConnection();
-        $stmt = $conn->prepare("UPDATE agent_profiles SET license_number = ?, years_experience = ? WHERE id = ?");
+        $where = "id";
+        if (!is_numeric($id)) {
+            // Treat as email
+            $stmt = $conn->prepare("SELECT id FROM users WHERE email = ?");
+            $stmt->bind_param("s", $id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $user = $result->fetch_assoc();
+            if (!$user) {
+                return false; // User not found
+            }
+            $id = $user['id'];
+            $where = "user_id";
+        }
+        $stmt = $conn->prepare("UPDATE agent_profiles SET license_number = ?, years_experience = ? WHERE $where = ?");
         $stmt->bind_param("sii", $license_number, $years_experience, $id);
         return $stmt->execute();
     }

@@ -462,7 +462,7 @@ function handleAgentProfile($method, $id) {
             echo json_encode(['success' => $result]);
             break;
         case 'PUT':
-            if (!$id || $id <= 0) {
+            if (!$id || (is_numeric($id) && $id <= 0)) {
                 http_response_code(400);
                 echo json_encode(['error' => 'Invalid ID required']);
                 exit;
