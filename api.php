@@ -96,6 +96,7 @@ switch ($resource) {
         break;
     case 'player_profiles':
         if ($method !== 'GET') checkAuth();
+        $id = isset($uri[2]) ? $uri[2] : null;
         handlePlayerProfile($method, $id);
         break;
     case 'agent_profiles':
@@ -290,8 +291,10 @@ function handleUser($method, $id) {
 function handlePlayerProfile($method, $id) {
     switch ($method) {
         case 'GET':
-            if ($id) {
-                $result = PlayerProfile::read($id);
+            if (is_numeric($id)) {
+                $result = PlayerProfile::read(id:$id);
+            } elseif (is_string($id)) {
+                $result = PlayerProfile::read(email:$id);
             } else {
                 $result = PlayerProfile::read();
             }
@@ -305,10 +308,12 @@ function handlePlayerProfile($method, $id) {
                 exit;
             }
             // Validations
-            if (!is_int($data['user_id']) || $data['user_id'] <= 0) {
-                http_response_code(400);
-                echo json_encode(['error' => 'Invalid user_id']);
-                exit;
+            if (isset($data['user_id'])) {
+                if (!is_int($data['user_id']) || $data['user_id'] <= 0) {
+                    http_response_code(400);
+                    echo json_encode(['error' => 'Invalid user_id']);
+                    exit;
+                }
             }
             if (strlen($data['position']) < 3) {
                 http_response_code(400);
