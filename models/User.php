@@ -15,21 +15,27 @@ class User {
     }
 
     // Read all users or a single user by ID
-    public static function read($id = null) {
+    public static function read($id = null, $email = null) {
         $conn = DB::getConnection();
         if ($id) {
             $stmt = $conn->prepare("SELECT id, name, email, role FROM users WHERE id = ?");
             $stmt->bind_param("i", $id);
             $stmt->execute();
             return $stmt->get_result()->fetch_assoc();
-        } else {
+        } elseif($email) {
+            $stmt = $conn->prepare("SELECT id, name, email, role FROM users WHERE email = ?");
+            $stmt->bind_param("i", $email);
+            $stmt->execute();
+            return $stmt->get_result()->fetch_assoc();
+        }
+        else {
             $result = $conn->query("SELECT id, name, email, role FROM users");
             return $result->fetch_all(MYSQLI_ASSOC);
         }
     }
 
     // Update user by ID
-    public static function update($id, $name, $email, $password = null, $role) {
+    public static function update($id, $name, $email, $role, $password = null) {
         $conn = DB::getConnection();
         $hashedPassword = $password ? password_hash($password, PASSWORD_DEFAULT) : null;
         if ($hashedPassword) {

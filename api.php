@@ -191,7 +191,7 @@ function handleUser($method, $id) {
         case 'GET':
             // No validation needed
             if ($id) {
-                $result = User::read($id);
+                $result = User::read(id:$id);
             } else {
                 $result = User::read();
             }
@@ -424,16 +424,25 @@ function handleAgentProfile($method, $id) {
             break;
         case 'POST':
             $data = json_decode(file_get_contents('php://input'), true);
-            if (!isset($data['user_id'], $data['license_number'], $data['years_experience'])) {
+            if (!isset($data['license_number'], $data['years_experience']) || (!isset($data['user_id']) && !isset($data['email']))) {
                 http_response_code(400);
-                echo json_encode(['error' => 'Missing required fields']);
+                echo json_encode(['error' => 'Missing required fields. Must provide license_number, years_experience, and either user_id or email']);
                 exit;
             }
             // Validations
-            if (!is_int($data['user_id']) || $data['user_id'] <= 0) {
-                http_response_code(400);
-                echo json_encode(['error' => 'Invalid user_id']);
-                exit;
+            if (isset($data['user_id'])) {
+                if (!is_int($data['user_id']) || $data['user_id'] <= 0) {
+                    http_response_code(400);
+                    echo json_encode(['error' => 'Invalid user_id']);
+                    exit;
+                }
+            }
+            if (isset($data['email'])) {
+                if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
+                    http_response_code(400);
+                    echo json_encode(['error' => 'Invalid email']);
+                    exit;
+                }
             }
             if (strlen($data['license_number']) < 5) {
                 http_response_code(400);
@@ -445,7 +454,7 @@ function handleAgentProfile($method, $id) {
                 echo json_encode(['error' => 'Invalid years_experience']);
                 exit;
             }
-            $result = AgentProfile::create($data['user_id'], $data['license_number'], $data['years_experience']);
+            $result = AgentProfile::create($data['user_id'] ?? null, $data['email'] ?? null, $data['license_number'], $data['years_experience']);
             echo json_encode(['success' => $result]);
             break;
         case 'PUT':
