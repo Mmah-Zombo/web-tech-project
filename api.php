@@ -53,7 +53,7 @@ function generateJWT($user) {
     $payload = base64UrlEncode(json_encode([
         'id' => $user['id'],
         'role' => $user['role'],
-        'exp' => time() + 86400 // 1 day
+        'exp' => time() + 3600 // 1 hour
     ]));
     $signature = base64UrlEncode(hash_hmac('sha256', $header . '.' . $payload, $secret, true));
     return $header . '.' . $payload . '.' . $signature;
