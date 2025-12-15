@@ -152,7 +152,7 @@ function handleAuth($method, $sub) {
             echo json_encode(['error' => 'Password too short']);
             exit;
         }
-        if (!in_array(strtolower($data['role']), ['player', 'agent', 'clubmanager'])) { // Exclude Admin for register
+        if (!in_array(strtolower($data['role']), ['admin', 'player', 'agent', 'clubmanager'])) { // Exclude Admin for register
             http_response_code(400);
             echo json_encode(['error' => 'Invalid role']);
             exit;
