@@ -106,6 +106,7 @@ switch ($resource) {
         break;
     case 'clubs':
         if ($method !== 'GET') checkAuth();
+        $id = isset($uri[2]) ? $uri[2] : null;
         handleClub($method, $id);
         break;
     case 'contracts':
@@ -519,7 +520,7 @@ function handleClub($method, $id) {
             break;
         case 'POST':
             $data = json_decode(file_get_contents('php://input'), true);
-            if (!isset($data['name'], $data['location'], $data['league'], $data['manager_user_id'])) {
+            if (!isset($data['name'], $data['location'], $data['league']) || (!isset($data['manager_user_id']) && !isset($data['manager_email']))) {
                 http_response_code(400);
                 echo json_encode(['error' => 'Missing required fields']);
                 exit;
@@ -540,12 +541,14 @@ function handleClub($method, $id) {
                 echo json_encode(['error' => 'Invalid league']);
                 exit;
             }
-            if (!is_int($data['manager_user_id']) || $data['manager_user_id'] <= 0) {
-                http_response_code(400);
-                echo json_encode(['error' => 'Invalid manager_user_id']);
-                exit;
+            if (isset($data['manager_user_id'])) {
+                if (!is_int($data['manager_user_id']) || $data['manager_user_id'] <= 0) {
+                    http_response_code(400);
+                    echo json_encode(['error' => 'Invalid manager_user_id']);
+                    exit;
+                }
             }
-            $result = Club::create($data['name'], $data['location'], $data['league'], $data['manager_user_id']);
+            $result = Club::create($data['name'], $data['location'], $data['league'], $data['manager_user_id'] ?? null, $data['manager_email'] ?? null);
             if ($result) {
                 echo json_encode(['id' => $result]);
             } else {
@@ -560,7 +563,7 @@ function handleClub($method, $id) {
                 exit;
             }
             $data = json_decode(file_get_contents('php://input'), true);
-            if (!isset($data['name'], $data['location'], $data['league'], $data['manager_user_id'])) {
+            if (!isset($data['name'], $data['location'], $data['league'])) {
                 http_response_code(400);
                 echo json_encode(['error' => 'Missing required fields']);
                 exit;
@@ -581,12 +584,16 @@ function handleClub($method, $id) {
                 echo json_encode(['error' => 'Invalid league']);
                 exit;
             }
-            if (!is_int($data['manager_user_id']) || $data['manager_user_id'] <= 0) {
-                http_response_code(400);
-                echo json_encode(['error' => 'Invalid manager_user_id']);
-                exit;
-            }
-            $result = Club::update($id, $data['name'], $data['location'], $data['league'], $data['manager_user_id']);
+            // if (isset($data['manager_user_id'])) {
+            //     if (!is_int($data['manager_user_id']) || $data['manager_user_id'] <= 0) {
+            //         http_response_code(400);
+            //         echo json_encode(['error' => 'Invalid manager_user_id']);
+            //         exit;
+            //     }
+            // }
+
+            $result = Club::update($id, $data['name'], $data['location'], $data['league']);
+
             echo json_encode(['success' => $result]);
             break;
         case 'DELETE':
